@@ -9,6 +9,13 @@ typedef struct{
   int len;
 }AppBuffer;
 
+enum Key_Binds{
+    Arrow_Up,
+    Arrow_Down,
+    Arrow_Left,
+    Arrow_Right
+};
+
 #define ABUF_INIT {NULL,0}
 
 //void AbAppend(AppBuffer *ab, const char *s, int s_len){}
@@ -17,17 +24,17 @@ typedef struct{
 
 struct termios or_term;
 
-void disable_rawmode(void) {
+void Disable_Rawmode(void) {
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &or_term);
 }
 
-void enable_rawmode(void) {
+void Enable_Rawmode(void) {
     if (tcgetattr(STDIN_FILENO, &or_term) == -1) {
         perror("tcgetattr fail");
         exit(1);
     }
 
-    atexit(disable_rawmode);
+    atexit(Disable_Rawmode);
 
     struct termios raw = or_term;
 
@@ -44,24 +51,57 @@ void enable_rawmode(void) {
     }
 }
 
+int Editor_Read_Key(void){
+    char c;
+
+    while(read(STDIN_FILENO,&c,1) != 1){
+        if(c == '\x1b'){
+           char next[2];
+
+           if(read(STDIN_FILENO,&next[0],1) !=1){
+                return '\x1b';
+           }
+           if(read(STDIN_FILENO,&next[1],1)!=1){
+                return '\x1b';
+           }
+           if(next[0] == '['){
+                switch(next[1]){
+                    case 'A': return "Arrow_Up";         
+                    case 'B': return "Arrow_Down";
+                    case 'C': return "Arrow_Right";
+                    case 'D': return "Arrow_Left";
+                }
+           }
+           return '\x1b';
+    }
+  }
+    return c;
+}
+
+int Editor_Interpret_Key(void){
+      int key = Editor_Read_Key;
+
+      switch(key){
+        case Arrow_Up:
+          cursor_y--;
+          break;
+        case Arrow_Down:
+          cursor_y++;
+          break;
+        case Arrow_Right:
+          cursor_x++;
+          break;
+        case Arrow_Left:
+          cursor_x--;
+          break;
+      }
+}
+
 int main(void) {
-  enable_rawmode();
+  Enable_Rawmode();
 
   while (1) {
-    char c ='\0';
-
-    if(read(STDIN_FILENO, &c,1) == 1){
-      if(iscntrl(c)){
-        printf("CTRL + %c\r\n",c+64);
-      }
-      if(c == 17){
-        printf("Quitting...\r\n"); 
-        break;
-      }
-      else{
-        printf("%c\r\n",c);
-      }
-    }
+    
   }
 
 return 0;
