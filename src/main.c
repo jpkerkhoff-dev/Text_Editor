@@ -653,6 +653,8 @@ static void editorInsertNewline(void)
 
     if (E.cx == 0) {
         editorInsertRow(E.cy, "", 0);
+        E.cy++;
+        E.cx = 0;
     } else {
         EditorRow *row = &E.row[E.cy];
         int old_cx = E.cx;
