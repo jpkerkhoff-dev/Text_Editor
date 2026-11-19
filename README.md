@@ -2,6 +2,8 @@
 
 A small, single-file terminal text editor written in C using POSIX terminal APIs and ANSI escape sequences.
 
+![alt text](https://github.com/jpkerkhoff-dev/Text_Editor/blob/master/Captura%20de%20tela%202026-11-19%20091328.png)
+
 ## Controls
 
 | Key | Action |
